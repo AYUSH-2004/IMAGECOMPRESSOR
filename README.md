@@ -4,7 +4,7 @@ PixelShrink is a powerful and privacy-focused web-based tool for compressing ima
 ## 🚀 Live Demo
 You can see a live version of the project here: https://pixelshrink-2025.netlify.app/
 
-**✨ Key Features**
+##✨ Key Features
 **Client-Side Compression**: All image processing happens directly in the user's browser. No files are ever uploaded to a server, ensuring 100% privacy and security.
 
 **Batch Processing**: Users can upload and compress multiple images simultaneously, streamlining the workflow.
@@ -19,20 +19,20 @@ You can see a live version of the project here: https://pixelshrink-2025.netlify
 
 **Wide Format Support**: Compresses all major image formats, including JPEG, PNG, and WebP.
 
-**🛠️ Technologies Used**
-HTML5: For the structure and content of the web application.
+## 🛠️ Technologies Used
+**HTML5**: For the structure and content of the web application.
 
-Tailwind CSS: A utility-first CSS framework for creating the modern and responsive user interface.
+**Tailwind CSS**: A utility-first CSS framework for creating the modern and responsive user interface.
 
-JavaScript (ES6+): For all the application logic, DOM manipulation, and handling user interactions.
+**JavaScript (ES6+)**: For all the application logic, DOM manipulation, and handling user interactions.
 
-browser-image-compression.js: A lightweight and efficient JavaScript library for handling the core image compression logic in the browser.
+**browser-image-compression.js**: A lightweight and efficient JavaScript library for handling the core image compression logic in the browser.
 
-JSZip.js: A library for creating, reading, and editing .zip files, used for the "Download All" functionality.
+**JSZip.js**: A library for creating, reading, and editing .zip files, used for the "Download All" functionality.
 
-particles.js: A library for creating the animated particle background, enhancing the visual appeal of the application.
+**particles.js**: A library for creating the animated particle background, enhancing the visual appeal of the application.
 
-**⚙️ How to Use**
+## ⚙️ How to Use
 Open the Application: Simply open the index.html file in any modern web browser.
 
 **Upload Images:**

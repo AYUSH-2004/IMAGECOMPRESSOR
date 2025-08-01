@@ -1,4 +1,4 @@
-PixelShrink: A Client-Side Image Compressor
+*PixelShrink: A Client-Side Image Compressor*
 PixelShrink is a powerful and privacy-focused web-based tool for compressing images. Built with modern web technologies, it provides a seamless user experience for instantly reducing image file sizes directly in the browser. This project was developed as part of the B.Tech Computer Science and Engineering curriculum, demonstrating proficiency in front-end development and an understanding of client-side processing.
 
 🚀 Live Demo

@@ -1,25 +1,25 @@
-*PixelShrink: A Client-Side Image Compressor*
+**PixelShrink: A Client-Side Image Compressor**
 PixelShrink is a powerful and privacy-focused web-based tool for compressing images. Built with modern web technologies, it provides a seamless user experience for instantly reducing image file sizes directly in the browser. This project was developed as part of the B.Tech Computer Science and Engineering curriculum, demonstrating proficiency in front-end development and an understanding of client-side processing.
 
-🚀 Live Demo
+**🚀 Live Demo**
 You can see a live version of the project here: https://pixelshrink-2025.netlify.app/
 
-✨ Key Features
-Client-Side Compression: All image processing happens directly in the user's browser. No files are ever uploaded to a server, ensuring 100% privacy and security.
+**✨ Key Features**
+**Client-Side Compression**: All image processing happens directly in the user's browser. No files are ever uploaded to a server, ensuring 100% privacy and security.
 
-Batch Processing: Users can upload and compress multiple images simultaneously, streamlining the workflow.
+**Batch Processing**: Users can upload and compress multiple images simultaneously, streamlining the workflow.
 
-Download All: Compressed images can be downloaded individually or all at once in a single .zip file.
+**Download All**: Compressed images can be downloaded individually or all at once in a single .zip file.
 
-Real-time Feedback: The interface provides real-time progress indicators and displays the original size, compressed size, and the percentage of space saved for each image.
+**Real-time Feedback**: The interface provides real-time progress indicators and displays the original size, compressed size, and the percentage of space saved for each image.
 
-Responsive Design: A clean, modern, and fully responsive user interface built with Tailwind CSS, ensuring a great experience on both desktop and mobile devices.
+**Responsive Design**: A clean, modern, and fully responsive user interface built with Tailwind CSS, ensuring a great experience on both desktop and mobile devices.
 
-Drag & Drop: An intuitive drag-and-drop area for easily adding files.
+**Drag & Drop**: An intuitive drag-and-drop area for easily adding files.
 
-Wide Format Support: Compresses all major image formats, including JPEG, PNG, and WebP.
+**Wide Format Support**: Compresses all major image formats, including JPEG, PNG, and WebP.
 
-🛠️ Technologies Used
+**🛠️ Technologies Used**
 HTML5: For the structure and content of the web application.
 
 Tailwind CSS: A utility-first CSS framework for creating the modern and responsive user interface.
@@ -32,10 +32,10 @@ JSZip.js: A library for creating, reading, and editing .zip files, used for the 
 
 particles.js: A library for creating the animated particle background, enhancing the visual appeal of the application.
 
-⚙️ How to Use
+**⚙️ How to Use**
 Open the Application: Simply open the index.html file in any modern web browser.
 
-Upload Images:
+**Upload Images:**
 
 Drag and drop your image files onto the designated upload area.
 
@@ -43,7 +43,7 @@ Alternatively, click the upload area to open the file selector and choose your i
 
 Compression: The tool will automatically start compressing the images. You can monitor the progress for each file.
 
-Download:
+**Download:**
 
 Once an image is compressed, a "Download" button will appear next to it. Click it to save the individual file.
 

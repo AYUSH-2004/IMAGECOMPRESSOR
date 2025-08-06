@@ -1,11 +1,13 @@
-# PixelShrink: A Client-Side Image Compressor
-**PixelShrink** is a powerful and privacy-focused web-based tool for compressing images. Built with modern web technologies, it provides a seamless user experience for instantly reducing image file sizes directly in the browser. This project was developed as part of the B.Tech Computer Science and Engineering curriculum, demonstrating proficiency in front-end development and an understanding of client-side processing.
+# PixelTools: A Client-Side Image Compressor and Converter
+**PixelTool** is a powerful and privacy-focused web-based tool for compressing images and converting them into different formats. Built with modern web technologies, it provides a seamless user experience for instantly reducing image file sizes, converting PDF to image or vice versa directly in the browser. This project was developed as part of the B.Tech Computer Science and Engineering curriculum, demonstrating proficiency in front-end development and an understanding of client-side processing.
 
 ## 🚀 Live Demo
-You can see a live version of the project here: https://pixelshrink-2025.netlify.app/
+You can see a live version of the project here: https://pixel-tool.netlify.app/
 
 ## ✨Key Features
 **Client-Side Compression**: All image processing happens directly in the user's browser. No files are ever uploaded to a server, ensuring 100% privacy and security.
+
+**Client-Side Conversion**: All image or PDF  conversion happens directly in the user's browser. No files are ever uploaded to a server, ensuring 100% privacy and security.
 
 **Batch Processing**: Users can upload and compress multiple images simultaneously, streamlining the workflow.
 
@@ -42,12 +44,13 @@ Drag and drop your image files onto the designated upload area.
 Alternatively, click the upload area to open the file selector and choose your images.
 
 Compression: The tool will automatically start compressing the images. You can monitor the progress for each file.
+Similarly, it works for conversion.
 
 **Download:**
 
-Once an image is compressed, a "Download" button will appear next to it. Click it to save the individual file.
+Once an image is compressed or converted, a "Download" button will appear next to it. Click it to save the individual file.
 
-To download all compressed images at once, click the "Download All" button, which will save them in a single .zip archive.
+To download all compressed images or converted PDF or images  at once, click the "Download All" button, which will save them in a single .zip archive.
 
 Start Over: Click the "Clear" button to remove all files and start a new session.
 

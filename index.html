@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelShrink - Compress Images Instantly</title>
+    <title>PixelTools - Compress & Convert Images</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -12,8 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <style>
         html { scroll-behavior: smooth; }
@@ -30,6 +31,20 @@
         .progress-bar-fill { background-color: #4f46e5; width: 0%; height: 100%; transition: width 0.3s ease-out; }
         .glass{ background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         summary::-webkit-details-marker { display: none; }
+        .tool-section { display: none; }
+        .tool-section.active { display: block; }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4f46e5;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -39,44 +54,48 @@
     
             <div class="w-full max-w-5xl mx-auto px-4 py-6 md:py-8">
         
-                <nav class="initial-hidden w-full flex items-center justify-between mb-10 p-4 rounded-full glass">
+                <nav class="initial-hidden w-full flex items-center justify-between flex-wrap mb-10 p-4 rounded-2xl glass">
                     <a href="#" class="flex items-center gap-3">
                         <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <span class="text-2xl font-bold text-white tracking-tight">PixelShrink</span>
+                        <span class="text-2xl font-bold text-white tracking-tight">PixelTools</span>
                     </a>
-                    <div class="hidden md:flex items-center gap-x-2 text-sm font-medium">
-                        <a href="#features" class="text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Features</a>
-                        <a href="#security" class="text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Security</a>
-                        <a href="#faq" class="text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">FAQ</a>
-                        <a href="#contact" class="text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Contact</a>
+                    
+                    
+                    <button id="menu-toggle-btn" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white md:hidden">
+                        <span class="sr-only">Open main menu</span>
+                        
+                        <svg id="menu-open-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                        
+                        <svg id="menu-close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    
+                    <div id="nav-links" class="hidden w-full md:flex md:items-center md:w-auto mt-4 md:mt-0">
+                        <div class="flex flex-col md:flex-row md:items-center md:gap-x-1 text-sm font-medium">
+                            <a href="#compressor" class="nav-link text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Compressor</a>
+                            <a href="#image-to-pdf" class="nav-link text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Image to PDF</a>
+                            <a href="#pdf-to-image" class="nav-link text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">PDF to Image</a>
+                            <a href="#faq" class="nav-link text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">FAQ</a>
+                            <a href="#contact" class="nav-link text-gray-300 hover:text-white transition-all duration-200 py-2 px-3 rounded-md hover:bg-white/10">Contact</a>
+                        </div>
                     </div>
                 </nav>
 
                 <header class="text-center mb-12 initial-hidden">
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">PixelShrink</h1>
-                    <p class="mt-4 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">Compress your images instantly without losing quality. Support for all major formats with advanced compression algorithms.</p>
-        
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto">
-                        <div class="card-item text-center p-4 rounded-2xl hover:scale-105 hover:shadow-xl glass">
-                            <h3 class="font-semibold text-white">🔒 Privacy First</h3>
-                            <p class="text-sm text-gray-300">Images are processed in your browser. Nothing is ever uploaded.</p>
-                        </div>
-                        <div class="card-item text-center p-4 rounded-2xl hover:scale-105 hover:shadow-xl glass">
-                            <h3 class="font-semibold text-white">⚡ Lightning Fast</h3>
-                            <p class="text-sm text-gray-300">No waiting for uploads or downloads from a server.</p>
-                        </div>
-                        <div class="card-item text-center p-4 rounded-2xl hover:scale-105 hover:shadow-xl glass">
-                            <h3 class="font-semibold text-white">🖼️ All Formats</h3>
-                            <p class="text-sm text-gray-300">Supports JPEG, PNG, WebP, GIF and more.</p>
-                        </div>
-                    </div>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">PixelTools</h1>
+                    <p class="mt-4 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">Compress images, convert formats, and more. All in your browser.</p>
                 </header>
 
-                <main class="initial-hidden rounded-2xl shadow-xl shadow-black/20 p-4 md:p-8 glass">
+                
+                <main id="compressor" class="tool-section active initial-hidden rounded-2xl shadow-xl shadow-black/20 p-4 md:p-8 glass">
                     <div id="upload-container">
                         <div id="drop-zone" class="drop-zone w-full p-12 text-center rounded-xl cursor-pointer bg-slate-800/20 hover:bg-indigo-900/20">
                             <input type="file" id="file-input" class="hidden" accept="image/*" multiple>
@@ -86,7 +105,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
                                 </div>
-                                <p class="text-xl font-semibold text-gray-200">Upload your images</p>
+                                <p class="text-xl font-semibold text-gray-200">Upload Images to Compress</p>
                                 <p class="mt-1 text-sm">Drag and drop or click to select images</p>
                             </div>
                         </div>
@@ -109,74 +128,62 @@
                         </div>
                     </div>
                 </main>
+                
+                
+                <section id="image-to-pdf" class="tool-section initial-hidden rounded-2xl shadow-xl shadow-black/20 p-4 md:p-8 glass">
+                    <div id="image-to-pdf-upload-container">
+                        <div id="image-to-pdf-drop-zone" class="drop-zone w-full p-12 text-center rounded-xl cursor-pointer bg-slate-800/20 hover:bg-indigo-900/20">
+                            <input type="file" id="image-to-pdf-file-input" class="hidden" accept="image/*" multiple>
+                            <div class="flex flex-col items-center justify-center text-gray-400 pointer-events-none">
+                                 <div class="flex items-center justify-center w-16 h-16 mb-4 bg-indigo-500/20 rounded-full border border-indigo-400/30">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                </div>
+                                <p class="text-xl font-semibold text-gray-200">Upload Images to Convert to PDF</p>
+                                <p class="mt-1 text-sm">Drag and drop or click to select images</p>
+                            </div>
+                        </div>
+                        <div id="image-to-pdf-error" class="hidden mt-4 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg"></div>
+                    </div>
+                     <div id="image-to-pdf-result" class="hidden">
+                        <h2 class="text-2xl font-bold text-white mb-4">Conversion Ready</h2>
+                        <p class="text-gray-300 mb-4">Your selected images will be combined into a single PDF file.</p>
+                        <button id="convert-to-pdf-btn" class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-100">Convert to PDF</button>
+                    </div>
+                </section>
+
+                
+                <section id="pdf-to-image" class="tool-section initial-hidden rounded-2xl shadow-xl shadow-black/20 p-4 md:p-8 glass">
+                     <div id="pdf-to-image-upload-container">
+                        <div id="pdf-to-image-drop-zone" class="drop-zone w-full p-12 text-center rounded-xl cursor-pointer bg-slate-800/20 hover:bg-indigo-900/20">
+                            <input type="file" id="pdf-to-image-file-input" class="hidden" accept=".pdf">
+                            <div class="flex flex-col items-center justify-center text-gray-400 pointer-events-none">
+                                <div class="flex items-center justify-center w-16 h-16 mb-4 bg-indigo-500/20 rounded-full border border-indigo-400/30">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                </div>
+                                <p class="text-xl font-semibold text-gray-200">Upload PDF to Convert to Images</p>
+                                <p class="mt-1 text-sm">Drag and drop or click to select a PDF file</p>
+                            </div>
+                        </div>
+                         <div id="pdf-to-image-error" class="hidden mt-4 bg-red-500/20 border border-red-500/30 text-red-300 px-4 py-3 rounded-lg"></div>
+                    </div>
+                     <div id="pdf-to-image-result" class="hidden">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                            <h2 class="text-2xl font-bold text-white">Converted Pages</h2>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button id="download-all-pdf-images-btn" class="w-full sm:w-auto justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:scale-100" disabled>Download All as ZIP</button>
+                                <button id="pdf-to-image-start-over-btn" class="w-full sm:w-auto justify-center bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition-colors active:scale-95">Clear</button>
+                            </div>
+                        </div>
+                        <div id="pdf-page-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        </div>
+                    </div>
+                     <div id="pdf-loading-indicator" class="hidden flex-col items-center justify-center p-8">
+                        <div class="spinner"></div>
+                        <p class="mt-4 text-lg text-gray-300">Processing PDF, please wait...</p>
+                    </div>
+                </section>
         
-                <section id="features" class="initial-hidden mt-16 md:mt-24">
-                    <div class="text-center">
-                        <h2 class="text-3xl font-extrabold text-white tracking-tight">Powerful Features</h2>
-                        <p class="mt-2 max-w-2xl mx-auto text-lg text-gray-300">Everything you need for fast and private image compression.</p>
-                    </div>
-                    <div class="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20">
-                            <h3 class="text-lg font-bold text-white">Batch Processing</h3>
-                            <p class="mt-2 text-base text-gray-300">Compress multiple images at once. Just drag and drop a folder or select multiple files.</p>
-                        </div>
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20">
-                            <h3 class="text-lg font-bold text-white">Adjustable Quality</h3>
-                            <p class="mt-2 text-base text-gray-300">Fine-tune the compression level to get the perfect balance between quality and file size.</p>
-                        </div>
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20">
-                            <h3 class="text-lg font-bold text-white">Offline Functionality</h3>
-                            <p class="mt-2 text-base text-gray-300">PixelShrink works even when you're offline. No internet connection is needed after the initial page load.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="security" class="initial-hidden mt-16 md:mt-24">
-                    <div class="text-center">
-                        <h2 class="text-3xl font-extrabold text-white tracking-tight">Your Privacy is Our Priority</h2>
-                        <p class="mt-2 max-w-2xl mx-auto text-lg text-gray-300">We believe in a secure and private web. Here's our commitment to you.</p>
-                    </div>
-                    <div class="mt-12 grid gap-8 md:grid-cols-2">
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20 flex items-start gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center border border-green-400/30">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z" /></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">Client-Side Processing</h3>
-                                <p class="mt-1 text-base text-gray-300">All compression happens in your browser. Your files are never uploaded to any server, ensuring complete privacy.</p>
-                            </div>
-                        </div>
-                         <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20 flex items-start gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-sky-500/20 rounded-lg flex items-center justify-center border border-sky-400/30">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">Zero Data Collection</h3>
-                                <p class="mt-1 text-base text-gray-300">We don't require you to sign up or provide any personal data. No names, emails, or usage statistics are collected.</p>
-                            </div>
-                        </div>
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20 flex items-start gap-4">
-                           <div class="flex-shrink-0 w-12 h-12 bg-rose-500/20 rounded-lg flex items-center justify-center border border-rose-400/30">
-                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-rose-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">Transparent & Open Source</h3>
-                                <p class="mt-1 text-base text-gray-300">This tool is built using public, open-source libraries. The compression process is transparent and can be audited by anyone.</p>
-                            </div>
-                        </div>
-                        <div class="p-6 rounded-2xl glass hover:scale-105 hover:shadow-xl hover:shadow-black/20 flex items-start gap-4">
-                            <div class="flex-shrink-0 w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center border border-amber-400/30">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">Instant Deletion</h3>
-                                <p class="mt-1 text-base text-gray-300">Your images are processed in your browser's memory. When you close the tab, all data is instantly and irrecoverably gone.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="faq" class="initial-hidden mt-16 md:mt-24">
+                <section id="faq" class="tool-section initial-hidden mt-16 md:mt-24">
                     <div class="text-center">
                         <h2 class="text-3xl font-extrabold text-white tracking-tight">Frequently Asked Questions</h2>
                         <p class="mt-2 max-w-2xl mx-auto text-lg text-gray-300">Have questions? We've got answers.</p>
@@ -184,13 +191,13 @@
                     <div class="mt-12 max-w-3xl mx-auto space-y-4">
                         <details class="p-6 rounded-2xl glass group">
                             <summary class="flex items-center justify-between font-bold text-white cursor-pointer">
-                                How does this image compression work?
+                                How do the tools work?
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 transition-transform duration-300 group-open:rotate-180">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </summary>
                             <p class="mt-4 text-gray-300">
-                                This tool uses your browser's built-in power and a JavaScript library to intelligently re-encode your images. It reduces the quality in ways that are barely perceptible to the human eye, which results in a significantly smaller file size. No data is ever sent to a server.
+                                All tools use your browser's built-in power and open-source JavaScript libraries. For example, compression re-encodes images, and PDF tools render files without them ever leaving your computer. No data is ever sent to a server.
                             </p>
                         </details>
                         <details class="p-6 rounded-2xl glass group">
@@ -201,71 +208,50 @@
                                 </svg>
                             </summary>
                             <p class="mt-4 text-gray-300">
-                                Yes. Security is our main feature. The entire process happens on your computer (client-side). Your images never leave your device and are never uploaded or stored on any server. Once you close the browser tab, they are gone forever.
+                                Yes. Security is our main feature. The entire process happens on your computer (client-side). Your files never leave your device and are never uploaded or stored on any server. Once you close the browser tab, they are gone forever.
                             </p>
                         </details>
-                        <details class="p-6 rounded-2xl glass group">
+                         <details class="p-6 rounded-2xl glass group">
                             <summary class="flex items-center justify-between font-bold text-white cursor-pointer">
-                                What is the maximum file size I can upload?
+                                Can I use PixelTools on my phone?
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 transition-transform duration-300 group-open:rotate-180">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </summary>
                             <p class="mt-4 text-gray-300">
-                                There is no hard-coded limit. However, performance depends on your computer's memory and processing power. For very large images (e.g., over 30MB) or a huge number of files at once, your browser may slow down or become unresponsive. We recommend processing large batches in smaller chunks for the best experience.
-                            </p>
-                        </details>
-                        <details class="p-6 rounded-2xl glass group">
-                            <summary class="flex items-center justify-between font-bold text-white cursor-pointer">
-                                Will New Features would be added to in future?
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 transition-transform duration-300 group-open:rotate-180">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </summary>
-                            <p class="mt-4 text-gray-300">
-                               Yes, we are continuously working to improve and add new features based on your suggestions. Feel free to share any recommendations or feedback using the contact form below!
-                            </p>
-                        </details>
-                        <details class="p-6 rounded-2xl glass group">
-                            <summary class="flex items-center justify-between font-bold text-white cursor-pointer">
-                                Can I use PixelShrink on my phone?
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 transition-transform duration-300 group-open:rotate-180">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                </svg>
-                            </summary>
-                            <p class="mt-4 text-gray-300">
-                                Absolutely. The website is fully responsive and works great on modern mobile browsers. You can easily select photos from your phone's gallery and compress them on the go before sharing.
+                                Absolutely. The website is fully responsive and works great on modern mobile browsers. You can easily select photos from your phone's gallery and use all the tools on the go.
                             </p>
                         </details>
                     </div>
                 </section>
 
-                <section id="contact" class="initial-hidden mt-16 md:mt-24">
+                <section id="contact" class="tool-section initial-hidden mt-16 md:mt-24">
                     <div class="text-center">
                         <h2 class="text-3xl font-extrabold text-white tracking-tight">Get in Touch</h2>
                         <p class="mt-2 max-w-2xl mx-auto text-lg text-gray-300">Have questions or feedback? We'd love to hear from you.</p>
                     </div>
-                    <div class="mt-12 max-w-xl mx-auto p-8 rounded-2xl glass hover:shadow-xl hover:shadow-black/20">
-                        <div id="form-notification" class="hidden"></div>
-                        <form id="contact-form" action="https://submit-form.com/WrG64fGfd" class="grid grid-cols-1 gap-y-6">
-                            <div>
-                                <label for="name" class="sr-only">Full name</label>
-                                <input type="text" name="name" id="name" autocomplete="name" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Full name">
-                            </div>
-                            <div>
-                                <label for="email" class="sr-only">Email</label>
-                                <input id="email" name="email" type="email" autocomplete="email" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Email">
-                            </div>
-                            <div>
-                                <label for="message" class="sr-only">Message</label>
-                                <textarea id="message" name="message" rows="4" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Message"></textarea>
-                            </div>
-                            <div>
-                                <button type="submit" class="w-full justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all transform hover:scale-105 active:scale-100">
-                                Submit
-                                </button>
-                            </div>
-                        </form>
+                    <div class="mt-12 max-w-xl mx-auto">
+                        <div class="p-8 rounded-2xl glass hover:shadow-xl hover:shadow-black/20">
+                            <form id="contact-form" class="grid grid-cols-1 gap-y-6">
+                                <div>
+                                    <label for="name" class="sr-only">Full name</label>
+                                    <input type="text" name="name" id="name" autocomplete="name" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Full name">
+                                </div>
+                                <div>
+                                    <label for="email" class="sr-only">Email</label>
+                                    <input id="email" name="email" type="email" autocomplete="email" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Email">
+                                </div>
+                                <div>
+                                    <label for="message" class="sr-only">Message</label>
+                                    <textarea id="message" name="message" rows="4" required class="block w-full shadow-sm py-3 px-4 bg-gray-800/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-400 border border-gray-600 rounded-md transition-shadow" placeholder="Message"></textarea>
+                                </div>
+                                <div>
+                                    <button type="submit" class="w-full justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-all transform hover:scale-105 active:scale-100">
+                                    Submit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </section>
         
@@ -274,36 +260,35 @@
     </div>
     
    <footer class="w-full mt-16 md:mt-24 pb-8 initial-hidden">
-    <div class="px-4">
+    <div class="max-w-5xl mx-auto px-4">
         <div class="p-8 rounded-2xl glass hover:shadow-xl hover:shadow-black/20">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left max-w-7xl mx-auto border-t border-white/20 pt-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-left border-t border-white/20 pt-8">
                 <div class="sm:col-span-2 md:col-span-1">
-                    <h4 class="font-semibold text-white mb-2">PixelShrink</h4>
-                    <p class="text-sm text-gray-300">The fastest and most secure way to compress your images. All processing happens in your browser.</p>
+                    <h4 class="font-semibold text-white mb-2">PixelTools</h4>
+                    <p class="text-sm text-gray-300">The fastest and most secure way to compress and convert your images. All processing happens in your browser.</p>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-white mb-2">Features</h4>
+                    <h4 class="font-semibold text-white mb-2">Tools</h4>
                     <ul class="text-sm text-gray-300 space-y-1">
-                        <li>Batch compression</li>
-                        <li>Quality control</li>
-                        <li>Privacy focused</li>
+                        <li><a href="#compressor" class="nav-link-footer hover:text-white">Image Compressor</a></li>
+                        <li><a href="#image-to-pdf" class="nav-link-footer hover:text-white">Image to PDF</a></li>
+                        <li><a href="#pdf-to-image" class="nav-link-footer hover:text-white">PDF to Image</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-white mb-2">Formats</h4>
+                    <h4 class="font-semibold text-white mb-2">Info</h4>
                     <ul class="text-sm text-gray-300 space-y-1">
-                        <li>JPEG / JPG</li>
-                        <li>PNG</li>
-                        <li>WebP</li>
+                         <li><a href="#faq" class="nav-link-footer hover:text-white">FAQ</a></li>
+                         <li><a href="#contact" class="nav-link-footer hover:text-white">Contact Us</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold text-white mb-2">Security</h4>
                     <p class="text-sm text-gray-300">✅ 100% Private</p>
-                    <p class="text-sm text-gray-300">❌ No uploads to servers</p>
+                    <p class="text-sm text-gray-300">❌ No server uploads</p>
                 </div>
             </div>
-            <p class="mt-8 text-sm text-center text-gray-400">&copy; 2025 PixelShrink. All rights reserved.</p>
+            <p class="mt-8 text-sm text-center text-gray-400">&copy; 2025 PixelTools. All rights reserved.</p>
         </div>
     </div>
 </footer>
@@ -334,29 +319,86 @@
         </div>
     </template>
 
+    <template id="pdf-page-item-template">
+        <div class="list-item-enter p-2 rounded-lg flex flex-col gap-2 glass">
+            <div class="bg-gray-800 rounded-md overflow-hidden aspect-w-1 aspect-h-1">
+                <img class="page-thumbnail w-full h-full object-contain" src="" alt="PDF Page Thumbnail">
+            </div>
+            <div class="text-center">
+                <p class="font-semibold text-white text-sm truncate page-number">Page X</p>
+                <a href="#" class="download-page-link mt-1 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 px-2 rounded-md text-xs transition text-center active:scale-95 inline-block">Download</a>
+            </div>
+        </div>
+    </template>
+
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // pdf.js worker setup
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+        }
+
+    
         particlesJS('particles-js', {
-          "particles": {
-            "number": { "value": 100, "density": { "enable": true, "value_area": 800 } },
-            "color": { "value": "#ffffff" },
-            "shape": { "type": ["circle", "triangle", "edge"], "stroke": { "width": 0, "color": "#000000" } },
-            "opacity": { "value": 0.5, "random": true, "anim": { "enable": true, "speed": 1, "opacity_min": 0.1, "sync": false } },
-            "size": { "value": 3, "random": true },
-            "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
-            "move": { "enable": true, "speed": 4, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
-          },
-          "interactivity": {
-            "detect_on": "canvas",
-            "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
-            "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } }, "push": { "particles_nb": 4 } }
-          },
+          "particles": { "number": { "value": 100 }, "color": { "value": "#ffffff" }, "shape": { "type": ["circle", "triangle"] }, "opacity": { "value": 0.5, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4 }, "move": { "enable": true, "speed": 4, "direction": "none", "random": true, "out_mode": "out" } },
+          "interactivity": { "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" } } },
           "retina_detect": true
         });
 
+       
         const uiElementsToAnimate = document.querySelectorAll('.initial-hidden');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        uiElementsToAnimate.forEach(el => observer.observe(el));
+
+        
+        const menuToggleBtn = document.getElementById('menu-toggle-btn');
+        const navLinksContainer = document.getElementById('nav-links');
+        const menuOpenIcon = document.getElementById('menu-open-icon');
+        const menuCloseIcon = document.getElementById('menu-close-icon');
+
+        menuToggleBtn.addEventListener('click', () => {
+            navLinksContainer.classList.toggle('hidden');
+            menuOpenIcon.classList.toggle('hidden');
+            menuCloseIcon.classList.toggle('hidden');
+        });
+
+        
+        const allNavLinks = document.querySelectorAll('.nav-link, .nav-link-footer');
+        const toolSections = document.querySelectorAll('.tool-section');
+
+        allNavLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                
+                toolSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                 const targetSection = document.getElementById(targetId);
+                if(targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                
+                if (!navLinksContainer.classList.contains('hidden')) {
+                    navLinksContainer.classList.add('hidden');
+                    menuOpenIcon.classList.remove('hidden');
+                    menuCloseIcon.classList.add('hidden');
+                }
+            });
+        });
+
+
+        
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const fileInputAdd = document.getElementById('file-input-add');
@@ -367,81 +409,24 @@
         const errorMessage = document.getElementById('error-message');
         const downloadAllBtn = document.getElementById('download-all-btn');
         const startOverBtn = document.getElementById('start-over-btn');
-        const contactForm = document.getElementById('contact-form');
-        const formNotification = document.getElementById('form-notification');
 
         let compressedFiles = new Map();
         let fileCounter = 0;
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                    observer.unobserve(entry.target);
-                }
+        if(dropZone) {
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                handleFiles(e.dataTransfer.files);
             });
-        }, {
-            threshold: 0.1
-        });
-        uiElementsToAnimate.forEach(el => observer.observe(el));
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
-        });
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-        fileInputAdd.addEventListener('change', (e) => handleFiles(e.target.files));
-        startOverBtn.addEventListener('click', resetUI);
-        downloadAllBtn.addEventListener('click', downloadAllFiles);
-        
-        if (contactForm) {
-            contactForm.addEventListener('submit', handleFormSubmit);
+            fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+            fileInputAdd.addEventListener('change', (e) => handleFiles(e.target.files));
+            startOverBtn.addEventListener('click', resetUI);
+            downloadAllBtn.addEventListener('click', downloadAllFiles);
         }
-
-        function showNotification(message, isError = false) {
-            formNotification.textContent = message;
-            formNotification.className = `text-center p-4 rounded-md mb-4 font-medium ${isError ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`;
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            const form = e.target;
-            const button = form.querySelector('button[type="submit"]');
-            const originalButtonText = button.textContent;
-            button.textContent = 'Submitting...';
-            button.disabled = true;
-
-            const formData = new FormData(form);
-            const formObject = Object.fromEntries(formData.entries());
-
-            try {
-                const response = await fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(formObject)
-                });
-
-                if (response.ok) {
-                    showNotification('Message sent successfully!', false);
-                    form.reset();
-                } else {
-                    const data = await response.json().catch(() => ({}));
-                    const message = data.message || 'Something went wrong. Please try again.';
-                    showNotification(message, true);
-                }
-            } catch (error) {
-                console.error(error);
-                showNotification('Network error. Please check your connection.', true);
-            } finally {
-                button.textContent = originalButtonText;
-                button.disabled = false;
-            }
-        }
-
 
         function handleFiles(files) {
             if (!files || files.length === 0) return;
@@ -449,10 +434,10 @@
                 uploadContainer.classList.add('hidden');
                 resultContainer.classList.remove('hidden');
             }
-            hideError();
+            hideError(errorMessage);
             const validFiles = Array.from(files).filter(file => {
                 if (!file.type.startsWith('image/')) {
-                    showError(`File "${file.name}" is not a valid image and was skipped.`);
+                    showError(errorMessage, `File "${file.name}" is not a valid image and was skipped.`);
                     return false;
                 }
                 return true;
@@ -482,25 +467,11 @@
             });
         }
         
-        function updateProgress(fileId, progress) {
-            const item = document.getElementById(fileId);
-            if (!item) return;
-            const progressBar = item.querySelector('.progress-bar-fill');
-            const progressText = item.querySelector('.progress-text');
-            progressBar.style.width = `${progress}%`;
-            if (progress < 100) {
-                progressText.textContent = `Compressing... ${Math.round(progress)}%`;
-            } else {
-                 progressText.textContent = `Done!`;
-            }
-        }
-
         async function compressFile(file, fileId) {
             const options = {
                 maxSizeMB: 2,
                 useWebWorker: true,
                 quality: 0.8,
-                onProgress: (progress) => updateProgress(fileId, progress),
             };
             try {
                 const compressed = await imageCompression(file, options);
@@ -547,7 +518,7 @@
                 zip.generateAsync({type:"blob"}).then((content) => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(content);
-                    link.download = "PixelShrink_Images.zip";
+                    link.download = "PixelTools_Images.zip";
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -578,21 +549,16 @@
             compressedFiles.clear();
             fileCounter = 0;
             checkDownloadAllState();
-            hideError();
+            hideError(errorMessage);
         }
 
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-            errorMessage.style.opacity = '1'; 
-            setTimeout(() => {
-                 hideError();
-            }, 5000);
+        function showError(element, message) {
+            element.textContent = message;
+            element.classList.remove('hidden');
         }
 
-        function hideError() {
-            errorMessage.style.opacity = '0';
-            setTimeout(() => errorMessage.classList.add('hidden'), 300);
+        function hideError(element) {
+            element.classList.add('hidden');
         }
 
         function formatBytes(bytes, decimals = 2) {
@@ -603,8 +569,234 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
         }
+
+        
+        const { jsPDF } = window.jspdf;
+        const imgToPdfDropZone = document.getElementById('image-to-pdf-drop-zone');
+        const imgToPdfInput = document.getElementById('image-to-pdf-file-input');
+        const imgToPdfUploadContainer = document.getElementById('image-to-pdf-upload-container');
+        const imgToPdfResultContainer = document.getElementById('image-to-pdf-result');
+        const convertToPdfBtn = document.getElementById('convert-to-pdf-btn');
+        const imgToPdfError = document.getElementById('image-to-pdf-error');
+        let filesForPdf = [];
+
+        if(imgToPdfDropZone) {
+            imgToPdfDropZone.addEventListener('click', () => imgToPdfInput.click());
+            imgToPdfDropZone.addEventListener('dragover', (e) => { e.preventDefault(); imgToPdfDropZone.classList.add('drag-over'); });
+            imgToPdfDropZone.addEventListener('dragleave', () => imgToPdfDropZone.classList.remove('drag-over'));
+            imgToPdfDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imgToPdfDropZone.classList.remove('drag-over');
+                handleImageToPdfFiles(e.dataTransfer.files);
+            });
+            imgToPdfInput.addEventListener('change', (e) => handleImageToPdfFiles(e.target.files));
+            convertToPdfBtn.addEventListener('click', createPdf);
+        }
+
+        function handleImageToPdfFiles(files) {
+            const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            if(validFiles.length === 0) {
+                showError(imgToPdfError, 'No valid image files were selected.');
+                return;
+            }
+            filesForPdf = validFiles;
+            hideError(imgToPdfError);
+            imgToPdfUploadContainer.classList.add('hidden');
+            imgToPdfResultContainer.classList.remove('hidden');
+        }
+
+        async function createPdf() {
+            if (filesForPdf.length === 0) return;
+            const pdf = new jsPDF();
+            convertToPdfBtn.textContent = 'Converting...';
+            convertToPdfBtn.disabled = true;
+
+            for (let i = 0; i < filesForPdf.length; i++) {
+                const file = filesForPdf[i];
+                const imgData = await readFileAsDataURL(file);
+                const img = new Image();
+                img.src = imgData;
+                await new Promise(resolve => img.onload = resolve);
+                
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = img.width;
+                const imgHeight = img.height;
+                const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+
+                const newWidth = imgWidth * ratio;
+                const newHeight = imgHeight * ratio;
+                const x = (pageWidth - newWidth) / 2;
+                const y = (pageHeight - newHeight) / 2;
+
+                if (i > 0) {
+                    pdf.addPage();
+                }
+                pdf.addImage(imgData, 'JPEG', x, y, newWidth, newHeight);
+            }
+            
+            pdf.save('converted.pdf');
+            convertToPdfBtn.textContent = 'Convert to PDF';
+            convertToPdfBtn.disabled = false;
+            
+            filesForPdf = [];
+            imgToPdfUploadContainer.classList.remove('hidden');
+            imgToPdfResultContainer.classList.add('hidden');
+            imgToPdfInput.value = '';
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        
+        const pdfToImageDropZone = document.getElementById('pdf-to-image-drop-zone');
+        const pdfToImageFileInput = document.getElementById('pdf-to-image-file-input');
+        const pdfToImageUploadContainer = document.getElementById('pdf-to-image-upload-container');
+        const pdfToImageResultContainer = document.getElementById('pdf-to-image-result');
+        const pdfToImageError = document.getElementById('pdf-to-image-error');
+        const pdfLoadingIndicator = document.getElementById('pdf-loading-indicator');
+        const pdfPageList = document.getElementById('pdf-page-list');
+        const pdfPageItemTemplate = document.getElementById('pdf-page-item-template');
+        const downloadAllPdfImagesBtn = document.getElementById('download-all-pdf-images-btn');
+        const pdfToImageStartOverBtn = document.getElementById('pdf-to-image-start-over-btn');
+        let pdfImageBlobs = [];
+        let originalPdfName = '';
+
+        if(pdfToImageDropZone) {
+            pdfToImageDropZone.addEventListener('click', () => pdfToImageFileInput.click());
+            pdfToImageDropZone.addEventListener('dragover', (e) => { e.preventDefault(); pdfToImageDropZone.classList.add('drag-over'); });
+            pdfToImageDropZone.addEventListener('dragleave', () => pdfToImageDropZone.classList.remove('drag-over'));
+            pdfToImageDropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                pdfToImageDropZone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length > 0) handlePdfFile(e.dataTransfer.files[0]);
+            });
+            pdfToImageFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) handlePdfFile(e.target.files[0]);
+            });
+            downloadAllPdfImagesBtn.addEventListener('click', downloadAllPdfImages);
+            pdfToImageStartOverBtn.addEventListener('click', resetPdfToImageUI);
+        }
+
+        async function handlePdfFile(file) {
+            if (!file || file.type !== 'application/pdf') {
+                showError(pdfToImageError, 'Please upload a valid PDF file.');
+                return;
+            }
+            originalPdfName = file.name.replace(/\.pdf$/i, '');
+            hideError(pdfToImageError);
+            pdfToImageUploadContainer.classList.add('hidden');
+            pdfLoadingIndicator.style.display = 'flex';
+
+            const fileReader = new FileReader();
+            fileReader.onload = async function() {
+                const typedarray = new Uint8Array(this.result);
+                try {
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    pdfToImageResultContainer.classList.remove('hidden');
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const viewport = page.getViewport({ scale: 2.0 });
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+
+                        await page.render({ canvasContext: context, viewport: viewport }).promise;
+                        
+                        canvas.toBlob(blob => {
+                            const imageUrl = URL.createObjectURL(blob);
+                            pdfImageBlobs.push({ name: `${originalPdfName}_page_${i}.png`, blob });
+                            addPdfPageToList(i, imageUrl);
+                            checkPdfDownloadAllState();
+                        }, 'image/png');
+                    }
+                } catch (error) {
+                    console.error('Error parsing PDF:', error);
+                    showError(pdfToImageError, 'Could not read the PDF file. It might be corrupted or protected.');
+                    resetPdfToImageUI();
+                } finally {
+                    pdfLoadingIndicator.style.display = 'none';
+                }
+            };
+            fileReader.readAsArrayBuffer(file);
+        }
+
+        function addPdfPageToList(pageNum, imageUrl) {
+            const templateClone = pdfPageItemTemplate.content.cloneNode(true);
+            const pageItem = templateClone.querySelector('.list-item-enter');
+            pageItem.querySelector('.page-thumbnail').src = imageUrl;
+            pageItem.querySelector('.page-number').textContent = `Page ${pageNum}`;
+            const downloadLink = pageItem.querySelector('.download-page-link');
+            downloadLink.href = imageUrl;
+            downloadLink.download = `${originalPdfName}_page_${pageNum}.png`;
+            pdfPageList.appendChild(pageItem);
+            requestAnimationFrame(() => {
+                pageItem.classList.add('list-item-enter-active');
+            });
+        }
+
+        function checkPdfDownloadAllState() {
+            downloadAllPdfImagesBtn.disabled = pdfImageBlobs.length === 0;
+        }
+
+        function downloadAllPdfImages() {
+            const zip = new JSZip();
+            pdfImageBlobs.forEach(file => {
+                zip.file(file.name, file.blob);
+            });
+            zip.generateAsync({type:"blob"}).then((content) => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = `${originalPdfName}_pages.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            });
+        }
+
+        function resetPdfToImageUI() {
+            pdfToImageUploadContainer.classList.remove('hidden');
+            pdfToImageResultContainer.classList.add('hidden');
+            pdfLoadingIndicator.style.display = 'none';
+            hideError(pdfToImageError);
+            
+            pdfPageList.querySelectorAll('.page-thumbnail').forEach(img => URL.revokeObjectURL(img.src));
+            
+            pdfPageList.innerHTML = '';
+            pdfImageBlobs = [];
+            pdfToImageFileInput.value = '';
+            checkPdfDownloadAllState();
+        }
+
+   
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const message = document.getElementById('message').value;
+                const subject = `Message from ${name} via PixelTools`;
+                const body = `Name: ${name}\nFrom: ${email}\n\nMessage:\n${message}`;
+
+                
+                const yourEmail = 'ayushupreti25@gmail.com'; 
+
+                const mailtoLink = `mailto:${yourEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                window.location.href = mailtoLink;
+            });
+        }
     });
     </script>
 </body>
 </html>
+
 
